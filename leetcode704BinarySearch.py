@@ -1,4 +1,5 @@
-"""Binary search #TC O(log n) """
+"""Binary search #TC O(log n) 
+source : https://leetcode.com/problems/binary-search/"""
 
 class Solution:
     def search(self, arr: List[int], target: int) -> int:
