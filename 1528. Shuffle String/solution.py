@@ -1,4 +1,4 @@
-"""  #array #string #TC SC O(n)
+"""#ma solution  #array #string #TC SC O(n)
 cette algo est plus complexe que la solution 2 car il fait un changement inplace de la phrase .
 remarque sur SC :
 en python les string sont immutable donc on ne peut faire de changement sur la string meme il va faloir creer une list donc forcement SC O(n).
