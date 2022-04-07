@@ -41,7 +41,7 @@ class Solution(object):
     def dfs(self, decisionSpace, path, res):
         res.append(path)
         for i in range(len(decisionSpace)):
-            self.dfs(decisionSpace[i+1:], path+[nums[i]], res)
+            self.dfs(decisionSpace[i+1:], path+[decisionSpace[i]], res)
             
 """ #sol 1bis #meme sol que 1 mais plus optmal au niveau du space voir permutation I pour comprendre pk c'est plus optimale """           
 
