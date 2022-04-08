@@ -23,9 +23,26 @@ dfs(x) :
     if x is a new solution  
         add to list of solutions
         
-    dfs(expand x)         # appel recursive 
+    for i to n :    
+        dfs(expand x)         # appels recursives 
     
 ```
+
+remarque: c'est le for qui creer l'arbre de recursion car il fait plusieur appele a chaque niveau , on est pas obliger de faire un for on peut faire des appel recursive de cette facon
+a la place (il faut au moins deux appel de recursion a chaque fois pour creer un arbre (binaire) ) :
+
+dfs(x) :
+
+    if x is not a solution
+        return false       # backtracking (car si on return alors ca veux dire qu'on arrete les appels recursive et on remonte la recursion)
+        
+    if x is a new solution  
+        add to list of solutions
+        
+    
+    dfs(expand x)         # 1er appel recursive 
+    dfs(expand x)         # 2e appel recursive 
+
 """
 
 """  # backtracking (pattern)  # TC O(n*n!)  # SC O(n)  (voir analyse )
