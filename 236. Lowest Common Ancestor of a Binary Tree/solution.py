@@ -1,3 +1,15 @@
+
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+
+
+
 """#ma solution #dfs recursive #TC O(n) #SC O(height) height peut etre egale a O(n)
 mon idee est de trouver les paths du root au node p et q . une fois qu'on a les paths si le node p/q se trouve sur le path du node q/p alors p/q est LCA, si ce n'est pas le cas alors il faut qu'on compare les deux
 passe en commencant par le root, le LCA va etre celui qui precede le premier node qui differe ds le path . explication :
@@ -146,33 +158,82 @@ on return q cad 2 qui est LCA .
 """
 
 
-def lowestCommonAncestor(self, root, p, q):
-    
-    stack = [root]
-    parent = {root: None}   # dic ou chaque key qui represente un node aura pour valeur sont pere 
-    
-    #ce while coute O(n) car il peut passer sur tout les nodes pour trouver p et q
-    while p not in parent or q not in parent:      # cad tant que on a pas trouver p et q car il ne sont pas encore key dans parent alors : (remarque: search ds un dic coute O(1)) 
-        node = stack.pop()
-        if node.left:   # si node a un enfant alors ce node sera pere de cette enfant 
-            parent[node.left] = node
-            stack.append(node.left)  
-        if node.right:
-            parent[node.right] = node
-            stack.append(node.right)
-    #une fois la boucle fini on aura un dictionnaire qui va contenir tout les nodes qui sont dans le path de root vers p/q chaque node va avoir un pere 
-    #on pourra retrouver le path en commancent par p on cherche son pere donc parent[p] apres qu'on a son pere pour trouver son grand pere on doit faire parent[parent[p]] etc..
-    
-    ancestors = set()  # on utilise un set car le search et O(1) (comme il ya pas de duplicate donc le set ne va pas effacer des valeurs)
-    
-    #ce while coute O(height) car passe sur le path de p donc peut etre O(n)
-    while p: # tant que p n'est pas null
-        ancestors.add(p)  # on rajoute dans le set le pere de p    (# remarque set n'a pas d'ordre met c'est pas important car apres on monte depuis q des qu'il ya un element en commun ca suffit. )
-        p = parent[p] # p devient le pere comme ca on monte a chaque iteration 
-    #ce while passe sur ancestor qui est le path de p donc coute O(height) qui peut etre O(n)
-    while q not in ancestors:   # ici on commence par q et on monte tant que on trouve pas un node qui est dans set on continue a monter des qu'on trouve un node dans set ca va etre le premier node en commun donc le LCA.
-        q = parent[q]
-    return q  
+class Solution:
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+ 
+        stack = [root]
+        parent = {root: None}   # dic ou chaque key qui represente un node aura pour valeur sont pere 
+
+        #ce while coute O(n) car il peut passer sur tout les nodes pour trouver p et q
+        while p not in parent or q not in parent:      # cad tant que on a pas trouver p et q car il ne sont pas encore key dans parent alors : (remarque: search ds un dic coute O(1)) 
+            node = stack.pop()
+            if node.left:   # si node a un enfant alors ce node sera pere de cette enfant 
+                parent[node.left] = node
+                stack.append(node.left)  
+            if node.right:
+                parent[node.right] = node
+                stack.append(node.right)
+        #une fois la boucle fini on aura un dictionnaire qui va contenir tout les nodes qui sont dans le path de root vers p/q chaque node va avoir un pere 
+        #on pourra retrouver le path en commancent par p on cherche son pere donc parent[p] apres qu'on a son pere pour trouver son grand pere on doit faire parent[parent[p]] etc..
+
+        ancestors = set()  # on utilise un set car le search et O(1) (comme il ya pas de duplicate donc le set ne va pas effacer des valeurs)
+
+        #ce while coute O(height) car passe sur le path de p donc peut etre O(n)
+        while p: # tant que p n'est pas null
+            ancestors.add(p)  # on rajoute dans le set le pere de p    (# remarque set n'a pas d'ordre met c'est pas important car apres on monte depuis q des qu'il ya un element en commun ca suffit. )
+            p = parent[p] # p devient le pere comme ca on monte a chaque iteration 
+        #ce while passe sur ancestor qui est le path de p donc coute O(height) qui peut etre O(n)
+        while q not in ancestors:   # ici on commence par q et on monte tant que on trouve pas un node qui est dans set on continue a monter des qu'on trouve un node dans set ca va etre le premier node en commun donc le LCA.
+            q = parent[q]
+        return q  
 
 
+""" # ma solution (a mon avis la plus simple a comprendre) # dfs recursive #TC O(n) #SC O(height)
 
+voir mes notes au sujet de la reconnaissance de variable dans les nested funct (voir surtout la premier remarque) :  https://www.evernote.com/shard/s393/sh/fae53613-e41b-e5dc-7372-d3e53fd748c7/28e56f3fe8d09504fa4634f7add549da
+
+pour comprendre il faut comprendre comment le dfs marche . 
+curPath contiendra le path actuel . 
+l'idee est de trouver le path de p et de q , les deux path commence forcement par le root donc des qu'un node est different ou que un path est contenue dans un autre alors on a trouver le LCA qui est le dernier 
+node en communn . ex si on a pathP = 2->3->4 et pathQ = 2->3->4->5->6 alors le dernier element en commun c'est 4 donc le LCA de 4 et 6 c'est 4 . 
+"""
+
+class Solution:
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        
+        pathP = []
+        pathQ = [] 
+        curPath = []
+        def dfs(node) : 
+            
+            # (on est obliger d'utiliser 'nonlocal' car on va faire des assignement a ces variables qui appartienne a la fonction exterieur voir link de mes notes )
+            nonlocal curPath 
+            nonlocal pathP      
+            nonlocal pathQ
+            
+            if not node : 
+                return 
+            
+            curPath.append(node)  # cette etape ce fait a chaque fois qu'on lit un node
+            
+            if node == q :  #si le node est q on copy le curPAth car c'est le path de q
+                pathQ = curPath.copy()
+            if node == p : 
+                pathP = curPath.copy()
+                
+            dfs(node.left)
+            dfs(node.right)
+            
+            curPath.pop() # le pop ce fait quand on a lu tout les nodes endessous car on a deja fait dfs(left) et dfs(right)  # cout O(1)
+            
+        dfs(root)
+        
+        #trouver le dernier element en commun des deux path 
+        i = 0 
+        while True : 
+            # les 2 premieres conditions sont la pour le cas ou on finit un path avant un autre sans trouver d'element diff (cad ds le cas ou un path est contenue dans un autres )
+            if  i >= len(pathP) or i >= len(pathQ) or pathP[i] != pathQ[i] : 
+                break 
+            i+=1
+        return pathP[i-1]
+    
