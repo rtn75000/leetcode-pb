@@ -107,12 +107,40 @@ Space Complexity: O(V) pour visited, queue va aussi etre de taille O(V) au max .
 
 """
 
+"""un dfs ou bfs sur une matrice est comme un bfs ou dfs sur un graph , l'idee d'un dfs c'est de parcourir dans la profondeur et le bfs parcours dans la largeur . le dfs,bfs d'un n-ary tree,
+d'un graph ou d'une matrice sont tres ressemblant la seule difference c'est que dans un arbre comme il ya que une direction on ne peut pas retomber sur un node deja visiter avec le dfs/bfs alors
+que dans une matrice ou dans un graph on peut retomber sur le meme node donc il va falloir garder les nodes/cellules deja visiter pour ne pas les revisiter .
+le dfs et bfs parcours tout le n-ary tree / la matrice / le graphe de facon recursive, donc comme dans un n-ary tree on fait dfs/bfs sur les n enfants de facon rec de meme on 
+fera dans une matrice dfs/bfs sur tout les voisin de la case de facon rec, chaque case (row,col) peut avoir 4 voisins (qd on a droit de se deplacer vetricalement ou horisontalement
+mais pas en diagonale) : 
+(row+1,col), (row-1,col), (row,col+1) et (row,col-1) 
+                                  
+                                  | row-1,col | 
+                       -----------|-----------|------------
+                       row, col-1 | row, col  | row, col+1
+                       -----------|-----------|------------
+                                  | row+1,col |
+
+on vait cela de facon rec donc par exemple apres avoir fait dfs sur (row,col) on va faire dfs sur (row,col+1) . Comme on peut le constater si on fait dfs sur (row,col+1) ca
+va revisiter le node (row,col) qui se trouve a gauche de (row,col+1) donc dans une matriceil faut aussi (comme ds un graph) garder les nodes deja visiter pour ne pas les visiter 
+une deuxieme fois.
+Le dfs/bfs doit etre lancer a partir de chaque case qui n'a pas etait visiter (pour cela on doit parcourir toute les case est voir si elle est visiter , si elle ne l'ai pas on lance un dfs) mais au finale 
+on va parcourir tout la matrice que une fois car on ne revient pas sur les cases deja visiter. 
+
+Dans un graphe c'est comme un n-ary tree il faut faire sur chaque node en voisin mais a la seul difference c'est qu'on peut retomber sur un node deja visiter puisque dans un graph
+il ya pas que la meme direction donc on doit garder les nodes deja visiter.
+  
+"""
+
 """ #first sol #not my sol  #DFS recursive in graph  #TC O(M×N) where M is the number of rows and N is the number of columns. voir explication # SC O(n*m). voir explication
 rappel : DFS et BFS dans un graph pour eviter de revenir sur le meme node garde tout les nodes visiter dans une set .
-Dans cette exo on va utiliser la meme idee on va faire dfs ou bfs que sur les 1 cad on va considerer comme vertex que les 1, des qu'on a visiter un 1 on le change en 0 pour ne pas le visiter a nouveau .
+Dans cette exo on va utiliser la meme idee on va faire dfs ou bfs que sur les 1 cad on va considerer comme vertex que les 1, des qu'on a visiter un 1 on le change en 0 pour ne pas le visiter
+a nouveau .
 un vertex cad un 1 sera considerer voisin si il se trouve a droite ou a gauche ou en haut on en bas d'un autre 1. 
-on va simplement traverser tout la matrice et si on rencontre un 1 alors on lance sur lui un dfs . lors du dfs tout voisin (cad un 1 adjacent) sera changer en 0 pour le marquer comme visiter donc a la fin du dfs 
-tout les 1 adjacent vont etre changer en 0 , si par la suite on rencontrera un autre 1 alors il va a son tours lancer un dfs . donc le nombre de fois qu'on lance un dfs constitue le nombre d'iles. 
+on va simplement traverser tout la matrice et si on rencontre un 1 alors on lance sur lui un dfs . lors du dfs tout voisin (cad un 1 adjacent) sera changer en 0 pour le marquer comme visiter 
+donc a la fin du dfs 
+tout les 1 adjacent vont etre changer en 0 , si par la suite on rencontrera un autre 1 alors il va a son tours lancer un dfs . donc le nombre de fois qu'on lance un dfs constitue le 
+nombre d'iles. 
 ex :
 
 1 0 0 0 1        le premier dfs en partant de matrix[0][0] donne ca :   0 0 0 0 0   le deuxieme dfs en partant de matrix[3][0] donne ca : 0 0 0 0 0  le 3 eme dfs en partant de matrix[3][3] donne ca : 0 0 0 0 0 
@@ -139,8 +167,8 @@ alors on va avoir en tout O((m*n)/2) dfs car chaque un appel un dfs, mais chaque
 1 1 1 1 1 1
 alors on aura 1 appele de dfs qui coute O(m*n) esuite tout va etre echanger en 0 donc pas d'autre dfs 
 
-ccl le dfs peut avoir en tout max O(n*m) iteration (qui peuvent etre fait en une fois on en plusieur fois). conc en tout on va avoir O(m*n) iteration pour passr un fois sur la matrix et O(m*n) iteration pour tout les dfs 
-donc on a O(2*m*n)=O(m*n)
+ccl le dfs peut avoir en tout max O(n*m) iteration (qui peuvent etre fait en une fois on en plusieur fois). Donc en tout on va avoir O(m*n) iteration pour passr un fois sur la matrix et O(m*n) iteration
+pour tout les dfs donc on a O(2*m*n)=O(m*n)
 
 SC : il va avoir utilisation de la stack lors d'appel recursive du dfs au max on aura O(m*n) appel recursive . ce cas la va etre si notre matrix et de la forme : 
 1 1 1 1 1 1
@@ -158,16 +186,18 @@ class Solution:
             return 0
 
         count = 0        # comptera le nbr de separated dfs
+        # on veut lancer un dfs a partir de chaque case donc on fait dfs sur chaque case 
         for row in range(len(grid)):   # row
             for col in range(len(grid[0])):  #column
-                if grid[row][col] == '1':  # que si la case est egale a 1 alors elle active un dfs 
+                if grid[row][col] == '1':  # que si la case est egale a 1 alors elle active un dfs (cad que si la case n'a pas etait visiter on lance un dfs)
                     self.dfs(grid, row, col)      #remarque: bien que la fct dfs est declarer apres comme c'est une fct de la classe alors elle peut etre declarer apres.
                     count += 1   # a la fin d'un dfs on a une ile en plus 
         return count
 
     def dfs(self, grid, row, col):
         
-        # les 4 premieres condition verifie si on est sortie des limites de la matrix , la 5e condition verifie si la case est egale a 1 .
+        # les 4 premieres conditions verifie si on est sortie des limites de la matrix et donc on veut pas faire d'appel rec dessus
+        # la 5e condition verifie si la case est egale a 1 si elle est pas egale a un on veut pas faire de recurion dessus .
         if row<0 or col<0 or row>=len(grid) or col>=len(grid[0]) or grid[row][col] != '1': 
             return             
         
@@ -198,7 +228,7 @@ class Solution:
         count = 0        # comptera le nbr de separated dfs
         for row in range(len(grid)):   # row
             for col in range(len(grid[0])):  #column
-                if grid[row][col] == '1':  # que si la case est egale a 1 alors elle active un bfs 
+                if grid[row][col] == '1':  # que si la case est egale a 1 alors elle active un bfs (cad que si la case n'a pas etait visiter on lance un bfs)
                     self.bfs(grid, row, col)      #remarque: bien que la fct bfs est declarer apres comme c'est une fct de la classe alors elle peut etre declarer apres.
                     count += 1   # a la fin d'un bfs on a une ile en plus 
         return count
@@ -212,10 +242,10 @@ class Solution:
         while queue:
             
             directions = [(0,1), (0,-1), (-1,0), (1,0)]  # droite, gauche , bas , haut 
-            r, c = queue.popleft()   # pop le premier entre dans le queue FIFO , cad maintenant on va verifier les voisin de la case matrix[r][c]
+            r, c = queue.popleft()   # pop le premier entrer dans le queue FIFO , cad maintenant on va verifier les voisin de la case matrix[r][c]
             for dr , dc  in directions:     #chaque element dans direction est composer d'un tuple contenant 2 element 1 pour l'ajout de direction sur les row et un ajout de direction sur les columns
                 nr, nc = r + dr, c + dc     # la nouvelle direction des row/column nr/nc est egale a l'ancienne direction r/c plus l'ajout de direction de row/column             
                 if nr>=0 and nc>=0 and nr<len(grid) and nc<len(grid[0]) and grid[nr][nc] == '1':  # on verifie que nc et nr sont bien ds les limites de la matrix et que la case contient un 1 
-                    queue.append((nr, nc))  # si toute les condition sont respecter alors on doit ajouter le voisin a la queue 
+                    queue.append((nr, nc))  # si toute les condition sont respecter alors on doit ajouter le voisin a la queue pour le visiter plus tard
                     grid[nr][nc] = '0'      # une fois que le voisin est ajouter on peut le marquer comme visited (on s'occupera de lui plus tard quand on va pop de la queue)
  
