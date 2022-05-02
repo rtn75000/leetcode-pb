@@ -44,25 +44,25 @@ class Solution:
         
         while  visited < n*m :  # we keep doing this until we have visited all cell
             
-            while col+1 < upperColLimit  :                      # go to right # go through a row from left to right 
+            while col+1 < upperColLimit  :                      # aller a droite jusqu'au bout # go through a row from left to right 
                 col+=1
                 visited+=1
                 res.append(matrix[row][col])            
             lowerRowLimit +=1      # Since we went through the topmost row we don't want to visit it again so change lower row bound in order to exclude this row for next iterations
             
-            while row +1 < upperRowLimit  :                     # go down  # go through a col from up to bottom
+            while row +1 < upperRowLimit  :                     # aller en bas jusqu'au bout  # go through a col from up to bottom
                 row+=1
                 visited+=1
                 res.append(matrix[row][col])
             upperColLimit-=1       # Since we went through the leftmost col we don't want to visit it again so change upper col bound in order to exclude this col for next iterations   
             
-            while col-1 > lowerColLimit and visited < n*m :    # go left # go through a row from right to left  #add the second condition for this case : matrix=[1,2,3]
+            while col-1 > lowerColLimit and visited < n*m :    # aller a gauche jusqu'au bout  # go through a row from right to left  #add the second condition for this case : matrix=[1,2,3]
                 col-=1
                 visited+=1
                 res.append(matrix[row][col])
             upperRowLimit-=1       # Since we went through the lowest row we don't want to visit it again so change upper row bound in order to exclude this row for next iterations
             
-            while row-1 > lowerRowLimit and visited < n*m :    # go up # go through a col from bottom to up #add the second condition for this case : matrix=[[1],[2],[3]]
+            while row-1 > lowerRowLimit and visited < n*m :    # aller en bas jusqu'au bout # go through a col from bottom to up #add the second condition for this case : matrix=[[1],[2],[3]]
                 row-=1
                 visited+=1
                 res.append(matrix[row][col])
