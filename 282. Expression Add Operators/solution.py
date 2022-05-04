@@ -69,8 +69,7 @@ a chaque leaf de nouveau.
 il ya deux pb qd on veut calculer 'on the fly' : 
 - s'occuper de la mutiplication 
 - ajouter un nombre sans signe avant 
-je ne vais pas m'attarder sur cette solution....
-"""
+je ne vais pas m'attarder sur cette solution car trop de edge case c'est improbable de l'avoir en interview...."""
 
 
 class Solution:
