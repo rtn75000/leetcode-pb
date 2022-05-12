@@ -1,0 +1,11 @@
+
+SCHEMA ARBRE DE RECURSION SOL SANS ET AVEC MEMOIZATION AVEC TC ET SC DE LA MEMOIZATION : 
+
+![20220512_121548](https://user-images.githubusercontent.com/100521999/168056326-53723e97-8db5-4787-8a95-c12fdfa5f890.jpg)
+
+
+ANALYSE TC SANS MEMOIZATION C'EST EXACTEMENT LE MEME TC QUE LE NOMBRE CATALAN : 
+
+![20220512_135731 (1)](https://user-images.githubusercontent.com/100521999/168056345-a1151a2d-2db0-4669-9b8a-a78fdb7e64ca.jpg)
+![20220512_132831](https://user-images.githubusercontent.com/100521999/168056376-b4584d5a-d768-4b68-a315-8ea23a8679b0.jpg)
+![20220512_132840](https://user-images.githubusercontent.com/100521999/168056394-2ea0621e-fbe1-44f9-9282-b7bfbbbc8389.jpg)
