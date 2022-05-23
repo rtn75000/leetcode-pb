@@ -287,6 +287,8 @@ class Solution:
                 else:                                       # cas 2
                     current[row] = max(previous[row], current[row + 1])
             # The current column becomes the previous one, and vice versa.
+            # on s'en fou des valeur du nouveau current car ils vont etre modifier donc meme si elles valent maintenant previous (apres le swap) ca nous derenge pas car
+            # on ne l'est regarde pas 
             previous, current = current, previous
         
         # The original problem's answer is in previous[0]. Return it.
