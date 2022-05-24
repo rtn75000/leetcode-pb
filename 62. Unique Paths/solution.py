@@ -135,7 +135,7 @@ premiere iteration :
    -----------------
    | 0 | 0 | 0 | 0 | 0
    -----------------
-   | 0 | 0 | 0 | X | 0        la case avec le X va etre la premiere iteration a calculer : tab[1][3] = tab[2][3] + tab[1][4] == 1+0 =1
+   | 0 | 0 | 0 | X | 0        la case avec le X va etre la premiere iteration a calculer : tab[2][3] = tab[3][3] + tab[2][4] == 1+0 =1
    -----------------  
    | 0 | 0 | 0 | 1 | 0
    -----------------
