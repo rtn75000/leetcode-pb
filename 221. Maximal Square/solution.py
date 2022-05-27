@@ -93,8 +93,8 @@ analysons les differente taille des carres :
         ---------
       
 
-chaque case egale a '1' peut etre un "depart" d'un carre (cad la case en haut a gauche du carre), donc on doit appliquer la logique qu'on a vu sur toute les case de la matrice.
-donc on va traverser la matrice row par row et appliquer cette logique .
+chaque case egale a '1' peut etre un "depart" d'un carre (cad etre la case en haut a gauche du carre), donc on doit appliquer la logique qu'on a vu sur toute les case de la matrice.
+donc on va traverser la matrice row par row (on aurait peu aussi traverser col par col) et appliquer cette logique .
 
 au final il faut qu'on return l'area du plus grand , donc cad il faut qu'on trouve le carre avec le plus grand cote puis faire cote*cote , et comme on a vu que chaque case a un carre qui
 commence a partir d'elle donc chaque case est potentiellement le debut du plus grand carre donc il faut update le max (si necessaire) a chaque fois qu'on calcule un nouveau carre. 
@@ -104,11 +104,11 @@ commence a partir d'elle donc chaque case est potentiellement le debut du plus g
 jusqu'au bout de la reflection , donc il faut pas avoir peur de calculer plein de fois la meme chose dans la recursion car apres on poura utiliser la memoization pour ne pas avoir a calculer de 
 nouveau ce qui est deja calculer)
 
-
 """
 
 
-""" #sol1 #my code(not my idea) #dfs(recursion brute force) # TC O(m*n*3^(m+n))  # SC O(n+m)
+""" 
+# sol1  # my code(not my idea)  # dfs(recursion brute force)  # TC O(m*n*3^(m+n))  # SC O(n+m)
 
 on applique ce qui est decrit dans l'intro de facon recursive ... 
 voir code il est tres comprehensible ...
@@ -138,14 +138,14 @@ donc la hauteur de l'arbre de recursion va etre O(n+m) donc la taille de la stac
 class Solution:
     def maximalSquare(self, matrix: List[List[str]]) -> int:
         
-        numOfRow = len(matrix) 
-        numOfCol = len(matrix[0]) 
+        n = len(matrix)              # n is the num of row
+        m = len(matrix[0])           # m is the num of col
         res = 0  # va conserver le coter le plus grand
         
-        #dfs retourne la taille du cote du carre qui demarre a la case matrix[row][col]
+        #dfs retourne la taille du cote du carre qui demarre a partir de la case matrix[row][col]
         def dfs(row,col) :
             
-            if row > numOfRow -1 or col > numOfCol - 1 or matrix[row][col] == '0' :  # si on sort des limite de la matrice ou si la case est egale a 0
+            if row > n -1 or col > m - 1 or matrix[row][col] == '0' :  # si on sort des limite de la matrice ou si la case est egale a 0
                 return 0 
             
             # si on arrive a cette ligne de code ca veut dire que la case est egale 1
@@ -159,14 +159,15 @@ class Solution:
             return 1+min(right,down,diag)
         
         # il faut faire la recursion en partant de chaque case qui egale 1 , car comme expliquer dans l'intro , chaque case qui egale 1 est un nouveau depart de carre.
-        # l'iteration se fait row par row (on aurait peu faire col par col (et dans ce cas faire for col ... for row :) ca change pas car on veut juste traverser la matrice 
+        # l'iteration se fait row par row (on aurait peu faire col par col (et dans ce cas faire for col: for row ) ca change pas car on veut juste traverser la matrice 
         # et dans les deux cas ca marche)
-        for row in range (numOfRow):
-            for col in range(numOfCol):
+        for row in range (n):
+            for col in range(m):
                 if matrix[row][col] == '1':   
                     res=max(res,dfs(row,col))  # res va garder la plus grande valeur retourner par les dfs cad il va etre la taille du plus grand cote des carre de la matrice.
                     
         return res**2   #on fait au res^2 car res est la taille du cote et nous on veut l'area
+
             
 """  # sol2   # my solution(apres avoir vu l'idee de la sol1)   # dp top-down/memoization (recursive)   # TC O(m*n)   # SC O(m*n)
 
@@ -188,6 +189,236 @@ Donc en tout il ya n*m combinaison possible des parametres donc cad il y'a en to
 
 """          
 
+class Solution:
+    def maximalSquare(self, matrix: List[List[str]]) -> int:
+        
+        n = len(matrix)              # n is the num of row
+        m = len(matrix[0])           # m is the num of col
+        res = 0 
+        cache ={}
+        
+        def dfs(row,col) :
+            
+            # cache lookup : 
+            if (row,matrix) in cache : 
+                return cache[(row,matrix)]
+            
+            if row > n -1 or col > m - 1 or matrix[row][col] == '0' :
+                return 0 
+            
+            right = dfs(row,col+1)
+            down = dfs(row+1,col)
+            diag = dfs(row+1,col+1)
+            
+            val = 1 + min(right,down,diag)              
+            cache[(row,matrix)] = val      # caching the result
+            return val
+        
+        for row in range (n):
+            for col in range(m):
+                if matrix[row][col] == '1':
+                    res=max(res,dfs(row,col))
+                    
+        return res**2
+            
+
+""" #sol2 bis  #dp top-down/memoization (recursive) with lru_cache #TC and SC same as above
+""" 
+
+class Solution:
+    def maximalSquare(self, matrix: List[List[str]]) -> int:
+        
+        n = len(matrix)              # n is the num of row
+        m = len(matrix[0])           # m is the num of col
+        res = 0 
+        
+        @lru_cache(None)
+        def dfs(row,col) :
+            
+            if row > n -1 or col > m - 1 or matrix[row][col] == '0' :
+                return 0 
+            
+            right = dfs(row,col+1)
+            down = dfs(row+1,col)
+            diag = dfs(row+1,col+1)
+        
+            return 1 + min(right,down,diag)
+        
+        
+        for row in range (n):
+            for col in range(m):
+                if matrix[row][col] == '1':
+                    res=max(res,dfs(row,col))
+        return res**2
+   
+    
+""" # sol3 # my solution(apres avoir vu l'idee de la sol1) #dp bottom-up/tabulation(iterative) #TC O(n*m) #SC O(n*m) du au tableau
+
+la fonction recoit deux parametre donc on va utiliser un tableau 2D pour la tabulation , en tout il ya n*m subproblems (car le premier parametre a n valeur possible et le deuxieme
+a m valeur possible donc en tout n*m combinaisons/subproblems) donc le tableau sera de cette taille. On commence l'iteration par les plus petit subproblems (base case) , on store l'info et ainsi 
+on pourra calculer les larger subproblemes qui dependent des smallest subproblems . 
+
+Quand on fait un bottom-up il faut essayer de faire l'inverse de la recursion dfs top-down, car ca permet de faire la 'traduction' de facon intuitive car le calcule de la recursion se fait 
+en remontant c'est donc cette partie qu'il faut 'traduire' en bottom-up :
+La recursion top-down descend la recursion jusqu'au base case et puis la elle arrete les appel recursive et c'est en remontant qu'elle fait les calcules , donc au finale le calcule se fait
+en partant du base case et en remontant vers le cas generale. 
+
+comme on utilise un tableau 2D alors on peut parcourir le tableau que de 8 facons differente :
+    
+         0   1   2         m             Dans ce cas on peut faire 8 iteration differente   :
+       -------------     -----              -> en partant d'en haut a gauche on peut parcourir (1) row par row ou (2) col par col  :    
+    0  |   |   |   | ... |   |                       (1)   for row in range(n+1):                  |     (2)    for col in range (m+1):
+       -------------     -----                                for col in range(m+1):               |               for row in range(n+1):
+    1  |   |   | X | ... |   |               
+       -------------     -----              -> en partant d'en haut a droite on peut parcourir (1) row par row ou (2) col par col  :
+         .   .   .    .    .                         (1)  for row in range(n+1):                   |     (2)    for col in range(m,-1,-1):                                                 
+         .   .   .    .    .                                 for col in range(m,-1,-1):            |               for row in range(n+1): 
+       -------------     -----                                                     
+    n  |   |   |   | ... |   |              -> en partant d'en bas a gauche on peut parcourir (1) row par row ou (2) col par col  :                            
+       -------------     -----                       (1)  for row in range(n,-1,-1):               |     (2)    for col in range(m+1):
+                                                             for col in range(m+1):                |               for row in range(n,-1,-1): 
+                                                             
+                                            -> en partant d'en bas a droite on peut parcourir (1) row par row ou (2) col par col  :                 
+                                                     (1)  for row in range(n,-1,-1):               |     (2)    for col in range(m,-1,-1):      
+                                                             for col in range(m,-1,-1):            |               for row in range(n,-1,-1):
+                                                             
+Ce que je veux dire par la c'est que on peut commencer l'iteration que a un des 4 coins du tableau , et comme on a vu qu l'iteration doit se faire du base case vers le cas generale ,
+alors il faut qu'on trouve le base case qui correspond a une des extremites
+
+Dans le dfs le base case est quand on sort du grid (row > n -1 or col > m - 1) ou qd on arrive a une case avec un 0 (matrix[row][col]=='0') et dans ce cas on return 0, et le cas generale 
+(le cas pour lequel on cherche la reponse ) ici c'est quand on ce trouve au debut du grid (matrix[0][0]). On aura les meme base case dans le Bottom-up cad :
+if (row > n -1 or col > m - 1 or matrix[row][col] == '0') :
+        dp[row][col]=0
+
+Comme dans la recursion le calcule commence par le cas de base de meme dans  le bottom up il faut trouver l'extremite qui correspond 'le plus' au base case, ca va TOUJOURS etre notre points
+de depart de l'iteration. Ici l'extremite qui correspond 'le plus' au base case ca va etre: row > n -1 AND col > m - 1 c'est a dire dp[n][m] qui correspond a la case en bas a droite 
+du tableau (je n'ai pas pris le cas ou matrix[row][col]=='0' car ca ne correspond pas forcement a une extremites du tableau dp )
+
+Puisque le tableau 2D dp est toujours de la forme suivante : 
+
+                                       0   1   2         m              
+                                      -------------     -----                  
+                                   0  |   |   |   | ... |   |                       
+                                      -------------     -----                                
+                                   1  |   |   |   | ... |   |               
+                                      -------------     -----             
+                                        .   .   .    .    .                                                                           
+                                        .   .   .    .    .                                
+                                      -------------     -----                                                     
+                                   n  |   |   |   | ... | X |                                   
+                                      -------------     -----       
+                                      
+Alors on va commencer l'iteration de notre tableau par la case en bas a droite (ou il ya le X) qui est la case qui est le cas 'le plus' base case , le cas ou row>m-1 and col>n-1
+(cad row==m and col==n).  
+
+On utilisera un tableau 2D (car 2 parametres dans la recursion) de la facon suivante : les column du tableau represente les colonnes de la matices il auront donc une valeur de 0 a m
+(inclu , m represente le cas ou col>m-1) et les row represente les row de la matices il auront donc une valeur de 0 a n (inclu , n represente le cas ou row>n-1) 
+
+prenons pour exemple : m=2, n=3  alors on aura le tableau dp suivant :
+
+     0   1   2   3
+    -----------------
+ 0  |   |   |   |   |
+    -----------------
+ 1  |   | X |   |   |
+    -----------------
+ 2  |   |   |   |   |
+    -----------------
+   
+Chaque cellule represente un subproblem , par exemple la cellule avec le X represente dfs(1,1) cad le cas on on recherche le plus grand carre en partant de matrix[1][1] .
+
+Comme dans la recursion dfs on a vue que dfs(row,col) nous donne le plus grand carre en commencent a partir de matrix[row][col], de meme dans le bottom-up : tab[row][col] nous rend le le plus
+grand carre en commencent a partir de matrix[row][col].
+
+Dans la recursion, si on est pas dans les base case alors dfs(row,col) est egale 1 + min (dfs(row,col+1), dfs(row+1,col), dfs(row+1,col+1)) , donc de meme dans bottom-up dans ce cas (ou ce
+n'est pas les bases case) alors tab[row][col] est egale a 1 + min (tab[row][col+1], tab[row+1][col], tab[row+1][col+1]) .
+
+Donc comme on a vu, pour calculer tab[row][col] il va nous falloir : tab[row][col+1], tab[row+1][col] et tab[row+1][col+1] cad pour calculer n'importe qu'elle cellule il nous faudra 
+la cellule d'en bas, de droite et en diagonale donc il nous faudra parcourir soit row par row (de droite a gauche car le point de depart et (en bas) a droite) soit col par col (de bas en haut
+car le point de depart et en bas (a droite)), dans les deux cas ca repondra a nos besoin (dans cette exercice). nous on va choisir de parcourir row par row.
+Il nous faut des valeur de depart qui n'ont pas besoin d'etre calculer avec des valeurs precedente (ce sont les bases cases), pour qu'on puisse ensuite utiliser c'est valeur de depart 
+pour calculer le reste ( Dans tout les dp tabulation ca marche comme ca il nous faut des valeur de depart pour 'lancer' le calcule ) ce sont les bases case .
+les base case vont etre calculer en premier ce qui va nous permettre de calculer le reste , c'est pour cela qu'on commence l'iteration au "plus" base case possible comme on a vue en haut.
+
+On doit parcourir tout les case du tableau car chaque case represente un autre subproblems. 
+
+
+On va rajouter une row et une column de 0 qui represente le cas ou on sort du grid , de plus tout le tableau du dp va etre initialiser avec des 0 car au debut on a decouvert aucun carre.
+
+On doit parcourir tout les case du tableau car chaque case represente un autre subproblems. on va parcourir row par row (on peut aussi col par col ca change pas)
+
+app :
+n=2, m=3   
+
+      0   1   2  
+    -------------
+ 0  | 0 | 1 | 1 | 
+    -------------
+ 1  | 0 | 1 | 1 |
+    ------------
+    
+alos dp :    
+premiere iteration : 
+
+     0   1   2   3
+   -----------------
+ 0 | 0 | 0 | 0 | 0 | 
+   -----------------
+ 1 | 0 | 0 | 0 | 0 |         la case avec le X va etre la premiere iteration a calculer puisque row>m-1 and col>n-1 :  tab[2][3] = 0
+   -----------------  
+ 2 | 0 | 0 | 0 | X | 
+   -----------------
+
+l'iteration fait row par row donc les prochain elements calculer sont : 
+
+    0   1   2   3
+   -----------------
+ 0 | 0 | 0 | 0 | 0 |          la case avec le X , puisque row>n-1 :  tab[2][2] = 0
+   -----------------
+ 1 | 0 | 0 | 0 | 0 |          la case avec le Y , puisque row>n-1 :  tab[2][1] = 0
+   -----------------  
+ 2 | Z | Y | X | 0 |          la case avec le Z , puisque row>m-1 :  tab[2][0] = 0
+   -----------------
+ 
+puis :
+ 
+      0   1   2   3
+    -----------------
+ 0  | 0 | 0 | 0 | 0 |        la case avec le X , puisque col>n-1 :  tab[1][3] = 0
+    -----------------
+ 1  | 0 | 0 | 0 | 0 |
+    -----------------
+ 2  | 0 | 0 | 0 | 0 |
+    -----------------
+
+puis :
+
+      0   1   2   3
+    -----------------
+ 0  | 0 | 0 | 0 | 0 |        la case avec le X , puisque ce n'est pas un base case car row <= n -1 and col <= m - 1 and matrix[row][col] != '0' alors :
+    -----------------        tab[1][2] = 1 + min (tab[1][2+1], tab[1+1][2], tab[1+1][2+1]) cad 1 + min (0,0,0)
+ 1  | 0 | 0 | X | 0 |
+    -----------------
+ 2  | 0 | 0 | 0 | 0 |
+    -----------------
+
+puis :
+
+      0   1   2   3
+    -----------------
+ 0  | 0 | 0 | 0 | 0 |        la case avec le X , puisque ce n'est pas un base case car row <= n -1 and col <= m - 1 and matrix[row][col] != '0' alors :
+    -----------------        tab[1][1] = 1 + min (tab[1][1+1], tab[1+1][1], tab[1+1][1+1]) cad 1 + min (1,0,0) cad X=2
+ 1  | 0 | X | 1 | 0 |
+    -----------------
+ 2  | 0 | 0 | 0 | 0 |
+    -----------------
+    
+etc ...
+
+
+
+
+""" 
 class Solution:
     def maximalSquare(self, matrix: List[List[str]]) -> int:
         
@@ -219,145 +450,26 @@ class Solution:
                     res=max(res,dfs(row,col))
                     
         return res**2
-            
 
-""" #sol2 bis  #dp top-down/memoization (recursive) with lru_cache #TC and SC same as above
-""" 
 
 class Solution:
     def maximalSquare(self, matrix: List[List[str]]) -> int:
         
-        numOfRow = len(matrix) 
-        numOfCol = len(matrix[0]) 
+        n = len(matrix)              # n is the num of row
+        m = len(matrix[0])           # m is the num of col
         res = 0 
+        dp = [[0 for _ in range(m+1)] for _ in range(n+1)]
         
-        @lru_cache(None)
-        def dfs(row,col) :
-            
-            if row > numOfRow -1 or col > numOfCol - 1 or matrix[row][col] == '0' :
-                return 0 
-            
-            right = dfs(row,col+1)
-            down = dfs(row+1,col)
-            diag = dfs(row+1,col+1)
-        
-            return 1 + min(right,down,diag)
-        
-        
-        for row in range (numOfRow):
-            for col in range(numOfCol):
-                if matrix[row][col] == '1':
-                    res=max(res,dfs(row,col))
-        return res**2
-   
-    
-""" # sol3 # my solution(apres avoir vu l'idee de la sol1) #dp bottom-up/tabulation(iterative) #TC O(n*m) #SC O(n*m) du au tableau
-
-la fonction recoit deux parametre donc on va utiliser un tableau 2D pour la tabulation , en tout il ya n*m subproblems (car le premier parametre a n valeur possible et le deuxieme
-a m valeur possible donc en tout n*m combinaisons/subproblems) donc le tableau sera de cette taille. On commence l'iteration par les plus petit subproblems (base case) , on store l'info et ainsi 
-on pourra calculer les larger subproblemes qui dependent des smallest subproblems . 
-
-le bottom-up veut juste dire qu'on utilise un tableau , on peut commencer le calcule par le debut ou la fin ca change rien , mais moi je prefere ici commencer par la fin (dans certain cas 
-c'est plus intuitive de commencer par le debut) car si on regarde comment la recursion top-down marche (c'est comme ca tout le temps) : elle descend la recursion jusqu'au 
-base case et puis la elle arrete les appel recursive et c'est en remontant qu'elle fait les calcules , donc au finale le calcule se fait en partant du base case (ici le base case 
-c'est quand on sort du grid ou qd on arrive a une case avec un 0) et en remontant vers le cas generale (ici le cas le plus generale c'est quand on ce trouve au debut du grid).
-Donc dans le bottom-up on va commencer par le cas "le plus" de base c'est le cas ou on se trouve a la case matrix[m-1][n-1] car il ya pas de case dans la matrix  ni a droite ni en bas
-ni a la diagonale de cette case (car c'est la case en bas a droite).
-On va rajouter une row et une column de 0 qui represente le cas ou on sort du grid , de plus tout le tableau du dp va etre initialiser avec des 0 car au debut on a decouvert aucun carre.
-
-On doit parcourir tout les case du tableau car chaque case represente un autre subproblems. on va parcourir row par row (on peut aussi col par col ca change pas)
-
-prenons pour exemple la matrice suivante : (m=3, n=4)
-
-   -----------------
-   | 1 | 0 | 1 | 0 |
-   -----------------
-   | 1 | 1 | 1 | 1 |
-   -----------------
-   | 0 | 1 | 1 | 0 |
-   -----------------
-   
-On a vu dans la recursion que dfs(row,col) = 1 + min(dfs(row,col+1), dfs(row+1,col), dfs(row+1,col+1)) , cad que dfs(row,col) utilise la valeur qui lui sera retourne par la case de 
-droite , la case de gauche et la case en diagonal, donc dans notre tableau ca revient a dire que la valeur de la case tab[row][col] va etre egale a :
-1 + min(tab[row][col+1], tab[row+1][col], tab[row+1][col+1] ) 
-
-
-app :
-
-    initialisation : 
-       -----------------
-       | 0 | 0 | 0 | 0 | 0
-       -----------------
-       | 0 | 0 | 0 | 0 | 0        
-       -----------------  
-       | 0 | 0 | 0 | 0 | 0
-       -----------------
-         0   0   0   0   0 
-
-    premiere iteration : 
-
-       -----------------
-       | 0 | 0 | 0 | 0 | 0
-       -----------------
-       | 0 | 0 | 0 | 0 | 0        la case avec le X va etre la premiere iteration a calculer , comme matrix[1][3] == '0' alors on fait rien cad la case reste egale a 0
-       -----------------  
-       | 0 | 0 | 0 | X | 0
-       -----------------
-         0   0   0   0   0 
-
-    l'iteration parcours row par row donc le prochaine element calculer est : 
-
-       -----------------
-       | 0 | 0 | 0 | 0 | 0
-       -----------------
-       | 0 | 0 | 0 | 0 | 0        comme matrix[2][3] == '1' alors tab[2][3] va etre egale a 1 + min(tab[2][4],tab[3][3],tab[3][4]) cad 1 + min(0,0,0) cad 1 
-       -----------------  
-       | 0 | 0 | X | 0 | 0
-       -----------------
-         0   0   0   0   0 
-
-    puis :
-
-       -----------------
-       | 0 | 0 | 0 | 0 | 0
-       -----------------
-       | 0 | 0 | 0 | 0 | 0        
-       -----------------  
-       | 0 | 0 | 1 | 0 | 0
-       -----------------
-         0   0   0   0   0 
-
-    etc ...
-
-    au finale ca donne : 
-
-    matrix :                             tableau dp :
-
-       -----------------                 -----------------                                  
-       | 1 | 0 | 1 | 0 |                 | 1 | 0 | 1 | 0 | 0               
-       -----------------                 -----------------                               
-       | 1 | 1 | 1 | 1 |                 | 1 | 2 | 1 | 1 | 0            cad le max va etre 2 donc la valeur retourner va etre 2*2 cad 4                    
-       -----------------                 -----------------                              
-       | 0 | 1 | 1 | 0 |                 | 0 | 1 | 1 | 0 | 0                                          
-       -----------------                 -----------------
-                                           0   0   0   0   0  
-
-
-""" 
-class Solution:
-    def maximalSquare(self, matrix: List[List[str]]) -> int:
-        numOfRow = len(matrix) 
-        numOfCol = len(matrix[0]) 
-        res = 0 
-        dp = [[0 for _ in range(numOfCol+1)] for _ in range(numOfRow+1)]
-        for row in range (numOfRow-1,-1,-1):   
-            for col in range(numOfCol-1,-1,-1):
-                if matrix[row][col] == '1':
+        # comme on a vue on doit commencer a la case en bas a droite et parcourir row par row, donc:
+        for row in range (n,-1,-1):   
+            for col in range(m,-1,-1):
+                if row > n -1 or col > m - 1 or matrix[row][col] == '0' :
+                    dp[row][col] = 0    #on peut ecrire continue car c'est deja 0 de base , mais c'est plus claire comme ca
+                else:                   
                     dp[row][col] = 1 + min (dp[row][col+1],dp[row+1][col],dp[row+1][col+1])
                     res = max(res,dp[row][col])
         return res**2
     
-# remarque: on peut inverser le for expliquer ... 
 
 """ 
 # sol4 # my solution(apres avoir vu l'idee de la sol1) #dp bottom-up/tabulation(iterative) with space optimization #TC O(n*m) # SC(m)
@@ -367,47 +479,47 @@ Comme on a peu le constater chaque case pour etre calculer a besoin de la case a
 
 par exemple pour l'exemple precedent a la place de garder le tableau suivant :
 
-   -----------------
-   | 0 | 0 | 0 | 0 | 0
-   -----------------
-   | 0 | 0 | 0 | 0 | 0        
-   -----------------  
-   | 0 | 0 | 0 | 0 | 0
-   -----------------
-     0   0   0   0   0 
-     
-il suffit d'avoir :   | Z | W | Y | X | 0     pour calculer X,Y,W,Z  , et il suffit d'avoir  | U | T | S | R | 0   pour calculer R,S,T,U  etc.....
-                      -----------------                                                      -----------------      
-                        0   0   0   0   0                                                    | Z | W | Y | X | 0                         
-
+    -----------------
+ 0  | 0 | 0 | 0 | 0 | 
+    -----------------
+ 1  | 0 | 0 | 0 | 0 |         
+    -----------------  
+ 2  | 0 | 0 | 0 | 0 | 
+    -----------------
+    
+                        -----------------
+il suffit d'avoir :  1  | Z | W | Y | X |      pour calculer X,Y,W,Z  , et il suffit d'avoir : 0  | U | T | S | R |    pour calculer R,S,T,U  
+                        -----------------                                                         -----------------      
+                     2  | 0 | 0 | 0 | 0 |                                                      1  | Z | W | Y | X |                          
+                         -----------------
 (on aurait peu faire la meme chose avec les colonnes)
 """ 
 class Solution:
     def maximalSquare(self, matrix: List[List[str]]) -> int:
         
-        numOfRow = len(matrix) 
-        numOfCol = len(matrix[0]) 
+        n = len(matrix)              # n is the num of row
+        m = len(matrix[0])           # m is the num of col
         res = 0 
         
         # les deux ranges qu'on a besoin : 
-        previous = [0]*(numOfCol+1)
-        current = [0]*(numOfCol+1)
+        previous = [0 for _ in range(m+1)]
+        current = [0 for _ in range(m+1)]
         
-        for row in range (numOfRow-1,-1,-1):
-            for col in range(numOfCol-1,-1,-1):
+        for row in range (n,-1,-1):   
+            for col in range(m,-1,-1):
                 
-                if matrix[row][col] == '1':
+                if row > n -1 or col > m - 1 or matrix[row][col] == '0' :
+                    current[col] = 0 
+                else:
                     # current[col+1] c'est la case a droite , previous[col] c'est la case en bas, previous[col+1] c'est la case en diagonale 
                     current[col] = 1 + min (current[col+1],previous[col],previous[col+1])   
                     res = max(res,current[col])
                     
-                # Attention : ici il faut update current avec 0 si matrix[row][col] == '0' car dans la solution precedente par defaut tout les case etait egale a 0
-                # mais ici comme on fait un swap et que current devient previous donc current a les case differente de 0.
-                else : 
-                    current[col] = 0 
-                    
             # on swap pour que previous devient current et que current devient previous 
+            # previous devient current et current devient previous (il faut que current devient previous car si on fait que previous = current alors quand on va modifier previous 
+            # ca modifie current car current est un array donc quand on fait previous = current ,previous pointe su la meme adresse que current, ca ne va pas etre juste une copie)
             previous,current=current,previous
             
         return res**2
+
 
