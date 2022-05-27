@@ -324,12 +324,12 @@ class Solution:
             for row in range(n-1,-1,-1):
                 # base case :
                 if row > n-1 or col > m-1:  
-                    current[row]=0
-                    
-                elif text2[col] == text1[row]:                # cas 1
-                    current[row] = 1 + previous[row + 1]
-                    
-                else:                                       # cas 2
+                    current[row] = 0        # current est une colonne donc les index sont les row
+                # cas 1    
+                elif text2[col] == text1[row]:            
+                    current[row] = 1 + previous[row + 1]      # previous c'est col+1 par rapport a current donc previous[row+1] ca veut dire avance une colone apres current et descent une case
+                # cas 2                                       # donc  previous[row + 1] represente la case en diagonale
+                else:                                   
                     # previous[row] ca represente la case a droite 
                     # current[row+1] ca represente la case en bas 
                     current[row] = max(previous[row], current[row + 1])
