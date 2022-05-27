@@ -62,19 +62,19 @@ puis txt2 de facon a parourir tout les lettre et ne pas finir avec qqch comme ('
 class Solution:
     def longestCommonSubsequence(self, text1: str, text2: str) -> int:
         
-        def dfs(idx1,idx2):
+        def dfs(idx1,idx2):  # nous rend la common subsequence de text1[idx1:] et text2[idx2:]
             
             # si on a fini de lire une des deux string alors on remonte la recursion en retournant 0 qui sera la somme initiale  
             if idx1 > len(text1)-1 or idx2 > len(text2)-1:   
-                return 0       
+                return 0                # c'est tres important que le base case rend 0 (ou une constante), ca va permettre de traduire facilement le top-down en bottom-up
             
-            # cas 1 : si la premiere lettre des deux string est la meme alors on a trouver une lettre de la common subsequence don on fait +1 
+            # cas 1 : si la premiere lettre des deux string est la meme alors on a trouver une lettre de la common subsequence donc on fait +1 
             #         et on s'avance de 1 dans les deux strings. 
             if text1[idx1] == text2[idx2] :
                 return 1+dfs(idx1+1,idx2+1)
             
-            # cas 2 : si pas cas 1 alors on on considere que la lettre va faire partie de la common subsequence ou on considere que celle ci ne va pas faire partie de la CS. 
-            # au retour de la recursion on va retourner le valeur max des enfant car c'est elle la longuest common subsequence 
+            # cas 2 : si pas cas 1 alors ou on considere que la lettre va faire partie de la common subsequence ou on considere que celle ci ne va pas faire partie de la CS. 
+            # au retour de la recursion on va retourner la valeur max des enfant car c'est elle la LONGEST common subsequence 
             return max(dfs(idx1,idx2+1),dfs(idx1+1,idx2))
         
         return dfs(0,0)  # retourne la taille de LCS
@@ -144,89 +144,123 @@ la fonction recoit deux parametre donc on va utiliser un tableau 2D pour la tabu
 a m valeur possible donc en tout n*m combinaisons/subproblems) donc le tableau sera de cette taille. On commence l'iteration par les plus petit subproblems , on store l'info et ainsi 
 on pourra calculer les larger subproblemes qui dependent des smallest subproblems . 
 
-le bottom-up veut juste dire qu'on utilise un tableau , on peut commencer le calcule par le debut ou la fin ca change rien , mais moi je prefere ici commencer par la fin (dans certain cas 
-c'est plus intuitive de commencer par le debut) car si on regarde comment la recursion top-down marche (c'est comme ca tout le temps) : elle descend la recursion jusqu'au 
-base case et puis la elle arrete les appel recursive et c'est en remontant qu'elle fait les calcules , donc au finale le calcule se fait en partant du base case (ici le base case 
-c'est quand une des deux string est vide) et en remontant vers le cas generale (ici le cas le plus generale c'est quand on ce trouve au debut des deux mots).
-Donc dans le bottom-up on va commencer par le cas "le plus" de base c'est le cas ou les deux phrase sont vide est donc la valeur est 0 (pour cela on va rajouter une ranger et une colonne
-de 0 qui represente le cas ou les phrases sont vide) et on va remonter vers le cas generale (remarque: si on regarde l'algo on remarque qu'il ne s'occupe pas des cas on il ya une des
-phrase qui est vide (cad il ya pas une case qui correspond apar exemple ("abd","") ou ("a","")) la raison est que tout c'est cas valent 0 donc on va utiliser la ranger ou ligne des 0 pour les simuler).
-C'est pour cela qu'on va commencer l'iteration de notre tableau par la case en bas a droite qui est la case qui vient juste apres les bases cases (remarque: a chaque fois qu'on fait 
-un dp tabulation on initialise le tableau avec les valeurs du base case puis on commence par le cas qui vient juste apres le base case) , ici les bases case sont quand on a une des phrases vide 
-donc le premier smallest subproblems qui vient apres c'est le cas de 1 lettre dans chaque mot (cad le cas ou on a la dernier lettre de chaque mot seulement) , ce cas est representer par
-le case d'en bas a droite. 
+Quand on fait un bottom-up il faut essayer de faire l'inverse de la recursion dfs top-down, car ca permet de faire la 'traduction' de facon intuitive car le calcule de la recursion se fait 
+en remontant c'est donc cette partie qu'il faut 'traduire' en bottom-up :
+La recursion top-down descend la recursion jusqu'au base case et puis la elle arrete les appel recursive et c'est en remontant qu'elle fait les calcules , donc au finale le calcule se fait
+en partant du base case et en remontant vers le cas generale. Ici le base case c'est quand UNE DES DEUX string est vide et le cas generale c'est quand on ce trouve au debut des deux mots.
+Donc dans le bottom-up aussi si une des deux phrase et vide (cad si idx1 > n-1 or idx2 > m-1) alors la valeur sera 0 (il va donc avoir une ranger et une colonne de 0 qui 
+represente le cas ou les phrases sont vide). Dans le bottom-up on va commencer par le cas "le plus" de base c'est le cas ou LES DEUX phrase sont vide cad que idx1 > n-1 and idx2 > m-1  .
+Le cas 'le plus' de base correspond au cas ou row==n et col==m , puisque le tableau dp est de la forme suivante : 
+
+                                       0   1   2         m              
+                                      -------------     -----                  
+                                   0  |   |   |   | ... |   |                       
+                                      -------------     -----                                
+                                   1  |   |   |   | ... |   |               
+                                      -------------     -----             
+                                        .   .   .    .    .                                                                           
+                                        .   .   .    .    .                                
+                                      -------------     -----                                                     
+                                   n  |   |   |   | ... | X |                                   
+                                      -------------     -----       
+                                      
+C'est pour cela qu'on va commencer l'iteration de notre tableau par la case en bas a droite (ou il ya le X) qui est la case qui est le cas 'le plus' base case.  
 On doit parcourir tout les case du tableau car chaque case represente un autre subproblems
+
+On utilisera un tableau 2D (car 2 parametres) de la facon suivante : les column du tableau represente idx2 il auront donc une valeur de 0 a m (inclu , m represente le cas ou idx>m-1) 
+et les row represente idx2 il auront donc une valeur de 0 a n (inclu , n represente le cas ou idx>n-1) 
 
 prenons pour exemple : txt1='cab' , txt2='ead' alors on aura le tableau suivant :
 
-     c   a   b  
-   -------------
-e  |   |   |   |  
-   -------------
-a  |   | X |   | 
-   -------------
-d  |   |   |   |
-   -------------
+     0   1   2   3
+   -----------------
+0  |   |   |   |   |  
+   -----------------
+1  |   | X |   | Y | 
+   -----------------
+2  |   |   |   |   |
+   -----------------
+3  |   |   |   |   |
+   -----------------
    
-Chaque cellule represente un subproblem , par exemple la cellule avec le X represente lcs("ab","ad") .
-comme on a vue dans la recursion qu'il ya deux cas a traiter : 
-- la premiere lettre de chaque mot est identique, dans ce cas on a fait dans la recursion 1+dfs(idx1+1,idx2+1), or le calule se fait en remontant donc dfs(idx1,idx2) va etre egale (dans notre 
-cas ou txt[idx1]==txt[idx2] ) a 1 plus la valeur retourner par dfs(idx1+1,idx2+1) donc dans notre tableau ca veut dire que la valeur de la case (idx1,idx2) va etre 1 plus la valeur de la case
-(idx+1,idx+2)  cad la case en diagonale en bas.
+Chaque cellule represente un subproblem , par exemple la cellule avec le X represente dfs(1,1) ( cad dfs("ab","ad") ) ou par exemple la celulle avec le Y represente dfs(1,3) (cad dfs("ab","")).
 
-exemple :
-     c   a   b 
-   -------------
-e  |   |   |   |      Dans la case tab[row][col], la case avec le X la premiere lettre des 2 mots "ab","ad" est identique donc tab[row][col] = 1 + tab[row+1][col+1]
-   -------------      cad 1+valeur de la case avec le D
-a  |   | X |   | 
-   -------------
-d  |   |   | D |
-   -------------
+Comme dans la recursion dfs on a vue que dfs(idx1,idx2) nous rend la common subsequence de text1[idx1:] et text2[idx2:] de meme dans le bottom-up : tab[idx1][idx2] nous rend la common
+subsequence de text1[idx1:] et text2[idx2:] .
 
-- la premiere lettre de chaque mot est pas identique, dans ce cas on a fait dans la recursion max(dfs(idx1,idx2+1),dfs(idx1+1,id2)), or le calule se fait en remontant donc dfs(idx1,idx2) 
-va etre egale (dans notre cas ou txt[idx1]!=txt[idx2] ) a max entre la valeur retourner par dfs(idx1,idx2+1) et la valeur retourner par dfs(idx1+1,idx2) donc dans notre tableau ca veut 
-dire que la valeur de la case (idx1,idx2) est egale a max entre la valeur de la case (idx1,idx2+1) et la valeur de la case (idx1+1,idx2)
+Comme dans la recursion, ici aussi on a 2 cas a traiter a chaque fois :  
 
-exemple :
-     c   a   b 
-   -------------
-e  | X | Y |   |      Dans la case tab[row][col], la case avec le X la premiere lettre des 2 mots "cab","ead" est pas identique donc tab[row][col] = max(tab[row+1][col],tab[row][col+1])
-   -------------      cad max(case avec Z ,case avec Y)
-a  | Z |   |   | 
-   -------------
-d  |   |   | D |
-   -------------
+    - la premiere lettre de chaque mot est identique, dans ce cas dans la recursion dfs(idx1,idx2) est egale a 1+dfs(idx1+1,idx2+1) donc de meme dans bottom-up dans ce cas 
+    tab[idx1][idx2] est egale a 1+tab[idx1+1][idx2+1] .
+
+    exemple :    soit text1='ab' text2='ad' alors :
+    
+         0   1   2 
+       -------------
+    0  | X |   |   |      puisque text1[0] == text2[0] alors tab[0][0] (la case avec le X)  donc tab[0][0] = 1 + tab[0+1][0+1] (cad 1+valeur de la case avec le D)
+       -------------      
+    1  |   | D |   | 
+       -------------
+    2  |   |   |   |
+       -------------
+
+    - la premiere lettre de chaque mot est pas identique, dans ce cas dans la recursion dfs(idx1,idx2) est egale a max(dfs(idx1,idx2+1),dfs(idx1+1,id2)), donc de meme dans bottom-up dans ce cas 
+    tab[idx1][idx2] est egale a max(tab[idx1][idx2+1],tab[idx1+1][idx2])
+
+    exemple :    soit text1='cb' text2='ad' alors :
+    
+         0   1   2 
+       -------------
+    0  | X | Y |   |      puisque text1[0] != text2[0] alors tab[0][0] (la case avec le X)  egale a max(tab[0][0+1], tab[0+1][1])  (cad max(Y,Z))
+       -------------      
+    1  | Z |   |   | 
+       -------------
+    2  |   |   |   |
+       -------------
+
+Donc comme on a vu, pour calculer tab[row][col] il va nous falloir : tab[row][col+1],tab[row+1][col]  ou tab[row+1][col+1]  cad pour calculer n'importe qu'elle case il nous faudra 
+la case d'en bas, de droite et en diagonale donc il nous faudra parcourir soit row par row (de droite a gauche) soit col par col (de bas en haut), dans les deux cas ca repondra a nos
+besoin (dans cette exercice). nous on va choisir de parcourir col par col.
+il nous faut des valeur de depart qui n'ont pas besoin d'etre calculer avec des valeurs precedente (ce sont les bases cases), pour qu'on puisse ensuite utiliser c'est valeur de depart 
+pour calculer le reste ( Dans tout les dp tabulation ca marche comme ca il nous faut des valeur de depart pour 'lancer' le calcule ) ce sont les bases case .
+les base case vont etre calculer en premier ce qui va nous permettre de calculer le reste , c'est pour cela qu'on commence l'iteration au "plus" base case possible comme on a vue en haut.
 
 
-Maintenant on peut voir le code est comprendre cmment il marche , il commence en bas a droit puis remonte colonne par colonne . 
-rappel: on rajoute une range est une ligne pour les base case , donc le tableau va etre comme ca a l'initialisation :
-par exemple pour  txt1='cab' , txt2='ead' alors on aura le tableau suivant :
 
-     c   a   b  
-   -------------
-e  | 0 | 0 | 0 | 0
-   -------------
-a  | 0 | 0 | 0 | 0
-   -------------
-d  | 0 | 0 | X | 0     # on commence par la case avec le X puis on remonte la colonne. 
-   -------------
-     0   0   0   0
+Maintenant on peut voir le code est comprendre comment il marche , il commence en bas a droit puis remonte colonne par colonne . 
 
-(intuitivement on rajoute la range et colonne de 0 car on a besoin des case de en bas a droite et en diagonale de chaque case pour pouvoir la caluler donc au debut la valeur est 0)
+     0   1   2   3  
+   -----------------
+0  | 0 | 0 | 0 | 0 |
+   -----------------
+1  | 0 | 0 | 0 | 0 |
+   -----------------
+2  | 0 | 0 | 0 | 0 |     # on commence par la case avec le X puis on remonte la colonne et ainsi de suite. 
+   -----------------
+3  | 0 | 0 | 0 | X |
+   -----------------
+   
+   
 """
 
 class Solution:
     def longestCommonSubsequence(self, text1: str, text2: str) -> int:
         
-        # Make a grid of 0's with extra column an extra row, here number of row == len(text1) + 1 and number of column == len(text2) + 1
-        dp_grid = [[0] * (len(text2) + 1) for _ in range(len(text1) + 1)]
+        n=len(text1)
+        m=len(text2)
+        
+        # Make a grid of 0's with extra column an extra row, for the case where idx1>n-1 and where idx2>m-1
+        dp_grid = [[0 for _ in range(m+1)] for _ in range(n+ 1)]
         
         # Iterate up each column, starting from the last one.
-        for col in range(len(text2)-1,-1,-1):
-            for row in range(len(text1)-1,-1,-1):
+        for col in range(m-1,-1,-1):
+            for row in range(n-1,-1,-1):
+                # base case :
+                if row > n-1 or col > m-1:   
+                    # on peut mettre juste continue car ca vaut deja 0 toute les cellules, mais c'est pour etre plus claire que j'ai ecrit dp_grid[row][col]=0
+                    dp_grid[row][col]=0            
                 # If the corresponding characters for this cell are the same :
-                if text2[col] == text1[row]:
+                elif text1[row]==text2[col] :
                     dp_grid[row][col] = 1 + dp_grid[row + 1][col + 1]
                 # Otherwise they must be different :
                 else:
@@ -234,32 +268,35 @@ class Solution:
         
         # The original problem's answer is in dp_grid[0][0]. Return it.
         return dp_grid[0][0]
-                    
+ 
         
 """#bonus #sol4 #dp tabulation with less memory utilisation #TC O(n*m) SC O(min(m,n))
 comme on a peu le constater chaque case pour etre calculer a besoin de la case diagonal bas (cas 1) ou des cases a droite et en bas (cas 2) donc on a besoin au finale en meme temps que 
-de 2 colonnes :
-par exemple pour cette exemple :
-     c   a   b  
-   -------------
-e  | 0 | 0 | 0 | 0
-   -------------
-a  | 0 | 0 | 0 | 0
-   -------------
-d  | 0 | 0 | 0 | 0    
-   -------------
-     0   0   0   0
+de 2 colonnes (ou que deux row mais ici comme on a fait l'iteration col par col alors pour que ca soit la meme chose on va prendre deux col (si on fait l'iteration row par row alors on 
+prends 2 row) ) :
 
-donc :
-                          b                                                               a   b                                                          c  a
-                        -----                                                           --------                                                       ---------                    
-                     e  | Z | 0                                                      e  | Q | Z |                                                    e | V | Q |                        
-                        -----                                                           ---------                                                      ---------     
-il suffit d'avoir :  a  | Y | 0     pour caluler X,Y,Z . puis il suffit d'avoir :    a  | S | Y |    pour calculer R,S,Q. puis il suffit d'avoir :   a | U | S |   pour calculer T,U,V .           
-                        -----                                                           ---------                                                      ---------      
-                     d  | X | 0                                                      d  | R | X |                                                    d | T | R |                             
-                        -----                                                           ---------                                                      ---------
-                          0   0                                                           0   0                                                          0   0
+par exemple pour cette exemple :
+
+     0   1   2  
+   -------------
+0  | 0 | 0 | 0 | 
+   -------------
+1  | 0 | 0 | 0 | 
+   -------------
+2  | 0 | 0 | 0 |     
+   -------------
+    
+
+donc :  (remarque : les 0 dans les tableau en bas sont les bases case qui n'utilise pas de valeur precedente pour etre calculer)
+                          1   2                                                          0   1                                                        
+                        --------                                                       --------                                                                        
+                     1  | Z | 0 |                                                   1  | S | Z |                                                                            
+                        ---------                                                      ---------                                                        
+il suffit d'avoir :  2  | Y | 0 |   pour caluler Y,Z  . puis il suffit d'avoir :    2  | R | Y |   pour calculer R,S.        
+                        ---------                                                      ---------                                                       
+                     3  | 0 | 0 |                                                   3  | 0 | 0 |                                                                                 
+                        ---------                                                      ---------                                               
+                                                                                                                                      
                           
 remarque: on choisira le mot le plus petit pour les rows car en column on en a deux et les row ca depend du mot donc c'est pour cela que SC egale O(min(n,m))
 
@@ -268,30 +305,42 @@ remarque: on choisira le mot le plus petit pour les rows car en column on en a d
 class Solution:
     def longestCommonSubsequence(self, text1: str, text2: str) -> int:
         
+        
         # If text1 doesn't reference the shortest string, swap them.
         if len(text2) < len(text1):
             text1, text2 = text2, text1
         # now text1 is the smallest text
         
-        # The previous and current column starts with all 0's and like 
-        # before is 1 more than the length of the first word.
-        previous = [0] * (len(text1) + 1)
-        current = [0] * (len(text1) + 1)
+        n=len(text1)
+        m=len(text2)
+        
+        # les deux col pour calculer
+        previous = [0] * (n + 1)
+        current = [0] * (n + 1)
         
         # iterate on col*row subsequence but the table is only previous and current row
-        # current c'est la seul colonne qui va etre modifier , on fait l'iteration de haut en bas de la colonne (donc on change de row a chaque fois)
-        for col in range(len(text2)-1,-1,-1):
-            for row in range(len(text1)-1,-1,-1):
-                if text2[col] == text1[row]:                # cas 1
+        # current c'est la seul colonne qui va etre modifier , on fait l'iteration de haut en bas de la colonne 
+        for col in range(m-1,-1,-1):
+            for row in range(n-1,-1,-1):
+                # base case :
+                if row > n-1 or col > m-1:  
+                    current[row]=0
+                    
+                elif text2[col] == text1[row]:                # cas 1
                     current[row] = 1 + previous[row + 1]
+                    
                 else:                                       # cas 2
+                    # previous[row] ca represente la case a droite 
+                    # current[row+1] ca represente la case en bas 
                     current[row] = max(previous[row], current[row + 1])
+                    
             # The current column becomes the previous one, and vice versa.
-            # on s'en fou des valeur du nouveau current car ils vont etre modifier donc meme si elles valent maintenant previous (apres le swap) ca nous derenge pas car
-            # on ne l'est regarde pas 
+            # il faut que current devient previous car si on fait que previous = current alors quand on va modifier previous ca modifie current 
+            # car current est un array donc quand on fait previous = current ,previous pointe su la meme adresse que current, ca ne va pas etre juste une copie.
+            # donc comme on a initialiser previous et current comme 2 array diff alors quand on fait le swap elle reste deux array diff 
             previous, current = current, previous
         
-        # The original problem's answer is in previous[0]. Return it.
+        # The original problem's answer is in previous[0] (and not in current since we did a swap). Return it.
         return previous[0]
 
 
