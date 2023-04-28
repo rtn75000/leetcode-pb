@@ -1,28 +1,31 @@
-"""#sliding windows#hashtable
-solution d'ici: https://leetcode.com/problems/find-all-anagrams-in-a-string/discuss/425720/Python-dictionary-unrolling
-"""
-
-import collections
+# notmysol # TC O(n*m) where n is the size of s and m is the max size of the counter # SC O(m) m is the max size of the counter
+# take a look at this image here (explain the algo) : 
+from collections import Counter
 class Solution:
     def findAnagrams(self, s: str, p: str) -> List[int]:
-        
-        myDictP=collections.Counter(p)
-        myDictS=collections.Counter(s[:len(p)]) # on commence par analyser une fenetre dans s de la taille de p 
-        res=[]
-        start=0
-        end=len(p)
-        
-        while end<=len(s):
-            if myDictS==myDictP:
-                res.append(start)
+        ns, np = len(s), len(p)
+        if ns < np:
+            return []
 
-            myDictS[s[start]]-=1
-            if myDictS[s[start]]==0:
-                myDictS.pop(s[start]) # on supprime le key:value du dictionary si ca valeur est egale a 0 pour pouvoir entrer d'autre key sans depasser la taille du dictionaire de P
-                
-            if end<len(s):    
-                 myDictS[s[end]]+=1 #meme si le key s[j] n'existe pas on peut incrementer dans Counter (voir dictionary python dans evernote)
-            end+=1
-            start+=1
-            
-        return res
+        p_count = Counter(p)
+        s_count = Counter()
+        
+        output = []
+        # sliding window on the string s
+        for i in range(ns):
+            # add one more letter 
+            # on the right side of the window
+            s_count[s[i]] += 1
+            # remove one letter 
+            # from the left side of the window
+            if i >= np:
+                if s_count[s[i - np]] == 1:
+                    del s_count[s[i - np]]
+                else:
+                    s_count[s[i - np]] -= 1
+            # compare array in the sliding window
+            # with the reference array
+            if p_count == s_count:
+                output.append(i - np + 1)
+        
+        return output
