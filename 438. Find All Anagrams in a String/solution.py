@@ -1,5 +1,5 @@
 # notmysol # TC O(n*m) where n is the size of s and m is the max size of the counter # SC O(m) m is the max size of the counter
-# take a look at this image here (explain the algo) : 
+# take a look at this image here (explain the algo) : https://github.com/rtn75000/leetcode-pb/blob/main/438.%20Find%20All%20Anagrams%20in%20a%20String/image.md
 from collections import Counter
 class Solution:
     def findAnagrams(self, s: str, p: str) -> List[int]:
